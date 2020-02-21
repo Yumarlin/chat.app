@@ -1,11 +1,10 @@
-var destinatarioSeleccionado=0
+var destinatarioSeleccionado = 0
 window.onload = function () {
     let boton = document.getElementById("btnContactos");
 
     let busqueda = document.getElementById("txtbusqueda");
     busqueda.onkeyup = function () {
         buscarContactos(busqueda.value)
-
     }
 
     boton.onclick = function () {
@@ -13,7 +12,27 @@ window.onload = function () {
             window.location = "/home/action_logout.php"
         }
     }
-  buscarContactos("")
+    document.getElementById("btnEnviar").onclick = function () {
+        let remitenteID = document.getElementById("txtID").value
+        let destinatarioID = destinatarioSeleccionado
+        let mensaje = document.getElementById("txtMensaje").value
+        let form = new FormData()
+        form.append("remitenteID", remitenteID)
+        form.append("destinatarioID", destinatarioID)
+        form.append("mensaje", mensaje)
+
+        fetch("/mensajes/action_registrar.php", {
+            method: "POST",
+            body: form
+
+        }).then(function (result) {
+            return result.text()
+        }).then(function (data) {
+            console.log(data)
+        })
+
+    }
+    buscarContactos("")
 
 }
 
@@ -22,10 +41,10 @@ function buscarContactos(busqueda) {
         .then(function (data) {
             return data.json()
         }).then(function (data) {
-            let template= ""
+            let template = ""
             for (const i of data) {
-                template +=`   
-                <li>
+                template += `   
+                <li onclick="seleccionarContacto (${i.ID})">
                   <div>
                     <img src="../public/img/user.jpg" alt="">
                  </div>
@@ -37,9 +56,32 @@ function buscarContactos(busqueda) {
                   </div>
                 </li>`
             }
-            document.getElementById("ulContactos").innerHTML=template
+            document.getElementById("ulContactos").innerHTML = template
         })
+}
 
-        
+function seleccionarContacto(id) {
+    destinatarioSeleccionado = id
+    cargarMensajes();
+}
 
+function cargarMensajes() {
+    fetch("/mensajes/action_buscar.php?remitenteID=" + document.getElementById("txtID").value + "&destinatarioID=" + destinatarioSeleccionado)
+        .then(function (res) {
+            return res.json()
+
+        }).then(function (data) {
+            console.log(data)
+            let template = ""
+            for (const item of data) {
+                let clase = (item.remitenteID == document.getElementById("txtID").value) ? "mensaje-enviado" : "mensaje-recibido"
+                console.log(item.remitenteID)
+                template += `
+                    <div class="${clase} mensaje">
+                    ${item.mensaje}
+                </div>
+            `
+            }
+            document.getElementById("divMensajes").innerHTML = template
+        })
 }

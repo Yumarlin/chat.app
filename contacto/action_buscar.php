@@ -7,10 +7,8 @@ $result=$database->select("contactos", ["ID", "nombre", "apellidos"],[
     "ID[!]"=>$id,
     "OR"=>[
         "nombre[~]"=> "%".$busqueda."%",
-        "apellidos"=>"%".$busqueda."%"
-    
+        "apellidos[~]"=>"%".$busqueda."%"
     ]
-
 ]);
 
 echo json_encode($result);

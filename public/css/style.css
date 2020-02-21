@@ -321,3 +321,10 @@
         display: none;
     }
 }
+
+.contact-list li:hover{
+background-color: lightgray;
+cursor:pointer;
+
+
+}
